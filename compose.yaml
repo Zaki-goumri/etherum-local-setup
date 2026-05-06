@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  geth-node1:
+    image: ethereum/client-go:latest
+    container_name: geth-node1
+    ports:
+      - "8545:8545"
+      - "8551:8551"
+      - "30303:30303"
+    volumes:
+      - ./genesis.json:/genesis.json
+      - ./jwt.hex:/jwt.hex
+      - ./my-keystore:/root/.ethereum/keystore # Mount your keystore
+      - node1-data:/root/.ethereum
+    command:
+      - --datadir=/root/.ethereum
+      - --networkid=1337
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=eth,net,web3,personal,engine
+      - --http.corsdomain=*
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.vhosts=*
+      - --authrpc.jwtsecret=/jwt.hex
+      - --allow-insecure-unlock
+      - --nodiscover
+    networks:
+      - eth-network
+
+  geth-node2:
+    image: ethereum/client-go:latest
+    container_name: geth-node2
+    ports:
+      - "8546:8545"
+      - "8552:8551"
+      - "30304:30303"
+    volumes:
+      - ./genesis.json:/genesis.json
+      - ./jwt.hex:/jwt.hex
+      - node2-data:/root/.ethereum
+    command:
+      - --datadir=/root/.ethereum
+      - --networkid=1337
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=eth,net,web3,personal,engine
+      - --http.corsdomain=*
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.vhosts=*
+      - --authrpc.jwtsecret=/jwt.hex
+      - --allow-insecure-unlock
+      - --nodiscover
+    networks:
+      - eth-network
+
+volumes:
+  node1-data:
+  node2-data:
+
+networks:
+  eth-network:
+    driver: bridge
